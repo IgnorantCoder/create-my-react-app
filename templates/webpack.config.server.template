@@ -1,0 +1,52 @@
+const path = require('path');
+const nodeExternals = require('webpack-node-externals');
+const webpack = require('webpack');
+
+module.exports = {
+    mode: '%BUILD_MODE%',
+    entry: './src/server.tsx',
+    target: 'node',
+    node: {
+        __dirname: false,
+        __filename: false,
+    },
+    externals: [nodeExternals()],
+    module: {
+        rules: [
+            {
+                enforce: 'pre',
+                loader: 'tslint-loader',
+                test: /\.tsx?$/,
+                exclude: [
+                    /node_modules/
+                ],
+                options: {
+                    emitErrors: true
+                }
+            },
+            {
+                loader: 'ts-loader',
+                test: /\.tsx?$/,
+                exclude: [
+                    /node_modules/
+                ],
+                options: {
+                    configFile: '%TSCONFIG_FILE%'
+                }
+            }
+        ]
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            __IN_DEVELEOPMENT__: %IN_DEVELOPMENT_FLAG%
+        })
+    ],
+    resolve: {
+        extensions: [ '.tsx', '.ts', '.js' ]
+    },
+    output: {
+        filename: 'server.js',
+        path: path.resolve(__dirname, 'dist')
+    }
+    %ADDITIONAL%
+};
